@@ -1,0 +1,253 @@
+import React, { useState, useEffect } from "react";
+
+const InputField = ({ segment, prefix = "", onChange, type = "text" }) => {
+  console.log("Segment:", segment); // Debugging line
+  return Object.keys(segment).map((key) => (
+    <div className="pt-3" key={key}>
+      <label
+        className="block text-xs font-medium text-gray-700"
+        htmlFor={`${prefix}${key}`}
+      >
+        {key.toUpperCase()}
+      </label>
+      <input
+        type={key === "Material Code" ? "number" : type}
+        id={`${prefix}${key}`}
+        name={`${prefix}${key}`}
+        value={segment[key] || ""}
+        placeholder={key}
+        className="w-full text-sm h-8 pt-1 pb-1 pl-2 border border-gray-300 rounded-md shadow-sm"
+        onChange={onChange}
+      />
+    </div>
+  ));
+};
+
+const ViewItemModal = ({ isOpen, onClose, viewData }) => {
+  console.log("ViewData:", viewData); // Debugging line
+
+  const [formData, setFormData] = useState({
+    general: {},
+    rm1: {},
+    rm2: {},
+    stellite: {},
+    weight: {},
+    processCost: {},
+    rawMaterialCost: {},
+    rawMaterialCostWithAllowance: {},
+    cost: {},
+    remarks: "",
+  });
+
+  useEffect(() => {
+    if (viewData && viewData.length > 0) {
+      const dataofView = viewData[0] || {};
+      setFormData({
+        general: {
+          Year: dataofView.y || "",
+          "Quote No": dataofView.q || "",
+          "Serial No": dataofView.sn || "",
+          "Material Code": dataofView.mat_code || "",
+          "Client Code": dataofView.cli_code || "",
+          "Material Description": dataofView.mat_desc || "",
+          Drawing: dataofView.drawing || "",
+          "Correct Revision": dataofView.correct_rev || "",
+          "Material Grade": dataofView.mat_grade || "",
+        },
+        rm1: {
+          Od: dataofView.rm1_od || "",
+          Id: dataofView.rm1_id || "",
+          Thickness: dataofView.rm1_t || "",
+        },
+        rm2: {
+          Od: dataofView.rm2_od || "",
+          Id: dataofView.rm2_id || "",
+          Thickness: dataofView.rm2_t || "",
+        },
+        stellite: {
+          Od: dataofView.ste_od || "",
+          Id: dataofView.ste_id || "",
+          Thickness: dataofView.ste_t || "",
+        },
+        weight: {
+          Rm1: dataofView.w_rm1 || "",
+          Rm2: dataofView.w_rm2 || "",
+          "Total-Rm-Kg": dataofView.w_tot_rm || "",
+          "Stellite-gm": dataofView.w_st6 || "",
+        },
+        processCost: {
+          Pm: dataofView.pm || "",
+          Fm: dataofView.fm || "",
+          "Drill/Weld": dataofView.drill || "",
+        },
+        rawMaterialCost: {
+          "Rm1-Rs/Kg": dataofView.c_rm1 || "",
+          "Rm2-Rs/Kg": dataofView.c_rm2 || "",
+          "Rm1+Rm2 Rate/qty": dataofView.c_rm1_rm2 || "",
+        },
+        rawMaterialCostWithAllowance: {
+          "Rm1+Rm2 wt Kg": dataofView.wa_rm1_rm2 || "",
+          "Rm1+Rm2 Cost": dataofView.ca_rm1_rm2 || "",
+          "Rm3 Wt g": dataofView.wa_rm3 || "",
+          "Rm3 Cost": dataofView.ca_rm3 || "",
+        },
+        cost: {
+          "Total Process Cost": dataofView.tpc || "",
+          "Total Cost / No": dataofView.tc || "",
+          "Total Cost No With Margin": dataofView.tcm || "",
+          "INR/Cost With Packing": dataofView.tc_inr || "",
+          "USD/Cost With Packing": dataofView.tc || "", // Update if different
+          "Conversion Rate USD": dataofView.conv_rate || "",
+        },
+        remarks: dataofView.remarks || "",
+      });
+    }
+  }, [viewData]);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+      aria-modal="true"
+      role="dialog"
+    >
+      <div className="bg-gray-300 p-6 rounded-lg shadow-xl max-w-5xl w-auto relative max-h-screen overflow-auto">
+        <span
+          className="absolute top-4 right-4 text-gray-600 text-3xl cursor-pointer"
+          onClick={onClose}
+        >
+          &times;
+        </span>
+        <h2 className="text-2xl font-semibold mb-4">View Item Details</h2>
+        <form className="sm:grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 grid-rows-4 gap-3">
+          {/* General Information */}
+          <div className="shadow-2xl p-4 bg-white rounded-md col-span-1 row-span-2">
+            <h3 className="text-base font-semibold mb-2">
+              General Information
+            </h3>
+            <InputField
+              segment={formData.general}
+              prefix="general."
+              type="text"
+            />
+          </div>
+
+          {/* Other Segments */}
+          {/* RM1 Segment */}
+          <div className="shadow-2xl p-4 bg-white rounded-md col-span-1 row-span-1">
+            <h3 className="text-base font-semibold mb-2">RM1</h3>
+            <InputField segment={formData.rm1} prefix="rm1." type="number" />
+          </div>
+
+          {/* RM2 Segment */}
+          <div className="shadow-2xl p-4 bg-white rounded-md col-span-1 row-span-1">
+            <h3 className="text-base font-semibold mb-2">RM2</h3>
+            <InputField segment={formData.rm2} prefix="rm2." type="number" />
+          </div>
+
+          {/* Stellite Segment */}
+          <div className="shadow-2xl p-4 bg-white rounded-md col-span-1 row-span-1">
+            <h3 className="text-base font-semibold mb-2">Stellite</h3>
+            <InputField
+              segment={formData.stellite}
+              prefix="stellite."
+              type="number"
+            />
+          </div>
+
+          {/* Weight Segment */}
+          <div className="shadow-2xl p-4 bg-white rounded-md col-span-1 row-span-1">
+            <h3 className="text-base font-semibold mb-2">Weight</h3>
+            <InputField
+              segment={formData.weight}
+              prefix="weight."
+              type="number"
+            />
+          </div>
+
+          {/* Process Cost Segment */}
+          <div className="shadow-2xl p-4 bg-white rounded-md col-span-1 row-span-1">
+            <h3 className="text-base font-semibold mb-2">Process Cost</h3>
+            <InputField
+              segment={formData.processCost}
+              prefix="processCost."
+              type="number"
+            />
+          </div>
+
+          {/* Raw Material Cost Segment */}
+          <div className="shadow-2xl p-4 bg-white rounded-md col-span-1 row-span-1">
+            <h3 className="text-base font-semibold mb-2">Raw Material Cost</h3>
+            <InputField
+              segment={formData.rawMaterialCost}
+              prefix="rawMaterialCost."
+              type="number"
+            />
+          </div>
+
+          {/* Raw Material Cost with Allowance Segment */}
+          <div className="shadow-2xl p-4 bg-white rounded-md col-span-1 row-span-1">
+            <h3 className="text-base font-semibold mb-2">
+              Raw Material Cost with Allowance
+            </h3>
+            <InputField
+              segment={formData.rawMaterialCostWithAllowance}
+              prefix="rawMaterialCostWithAllowance."
+              type="number"
+            />
+          </div>
+
+          {/* Cost Segment */}
+          <div className="shadow-2xl p-4 bg-white rounded-md col-span-1 row-span-2">
+            <h3 className="text-base font-semibold mb-2">Cost</h3>
+            <InputField segment={formData.cost} prefix="cost." type="number" />
+          </div>
+
+          {/* Remarks */}
+          <div className="shadow-2xl p-4 bg-white rounded-md col-span-1 row-span-1">
+            <label
+              className="block text-xs font-medium text-gray-700"
+              htmlFor="remarks"
+            >
+              REMARKS
+            </label>
+            <input
+              type="text"
+              name="remarks"
+              value={formData.remarks}
+              placeholder="Remarks"
+              className="w-full text-sm h-8 pt-1 pb-1 pl-2 border border-gray-300 rounded-md shadow-sm"
+              readOnly
+            />
+          </div>
+        </form>
+
+        <div className="flex justify-center mt-7 mb-7">
+          <button
+            type="button"
+            className="w-3/6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 col-span-auto"
+            style={{ height: "2.5rem" }}
+            onClick={onClose}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ViewItemModal;
